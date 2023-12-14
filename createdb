@@ -1,0 +1,97 @@
+CREATE SCHEMA IF NOT EXISTS storage_scheme
+ AUTHORIZATION postgres;
+CREATE TABLE IF NOT EXISTS storage_scheme.material(
+id integer primary key not null,
+name varchar(255) unique,
+mass integer,
+cubic_meters integer
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.semi_products(
+id integer primary key not null,
+name varchar(255) unique,
+mass integer,
+cubic_meters integer
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.products(
+id integer primary key not null,
+name varchar(255) unique,
+mass integer,
+cubic_meters integer
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.producers(
+id integer primary key not null,
+name varchar(255) unique,
+Rel_p integer references storage_scheme.products(id),
+Rel_sp integer references storage_scheme.semi_products(id)
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.contractors(
+id integer primary key not null,
+name varchar(255) unique,
+contacts varchar(255)
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.requestors(
+id integer primary key not null,
+req_name varchar(255) unique,
+authority integer
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.storage(
+id integer primary key not null,
+adress varchar(255) unique,
+metres_size integer
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.stored_info(
+related_material integer references storage_scheme.material(id),
+rel_strg integer references storage_scheme.storage(id),
+mat_quantity integer,
+rel_sp integer,
+rel_sp_q integer,
+rel_pd integer,
+rel_pd_q integer
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.storage_addition_log(
+id integer primary key not null,
+rel_strg integer references storage_scheme.storage(id),
+datesupl date,
+rel_mat integer,
+rel_mat_q integer,
+rel_p integer,
+rel_p_q integer,
+rel_sp integer,
+rel_sp_q integer
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.storage_decrease_log(
+id integer primary key not null,
+rel_strg integer references storage_scheme.storage(id),
+datesupl date,
+rel_mat integer,
+rel_mat_q integer
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.requests_to_use(
+id integer primary key not null,
+requestdate date,
+rel_mat integer,
+rel_mat_q integer,
+rel_strg integer,
+rel_req integer references storage_scheme.requestors(id),
+rel_st_d_l integer references storage_scheme.storage_decrease_log(id)
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.production_log(
+id integer primary key not null,
+rel_strg integer references storage_scheme.storage(id),
+datesupl date,
+rel_prod integer references storage_scheme.producers(id),
+rel_p integer references storage_scheme.producers(rel_p),
+rel_p_q integer,
+rel_sp integer references storage_scheme.producers(rel_sp),
+rel_sp_q integer,
+rel_st_a_l integer references storage_scheme.storage_addition_log(id)
+);
+CREATE TABLE IF NOT EXISTS storage_scheme.order(
+id integer primary key not null,
+orderdate date,
+rel_mat integer,
+rel_mat_q integer,
+rel_strg integer,
+related_contr integer references storage_scheme.contractors(id),
+rel_st_a_l integer references storage_scheme.storage_addition_log(id)
+);
